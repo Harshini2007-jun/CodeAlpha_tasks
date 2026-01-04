@@ -1,0 +1,123 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class StudentGradeTracker {
+
+    static ArrayList<String> studentNames = new ArrayList<>();
+    static ArrayList<Integer> studentGrades = new ArrayList<>();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Sample data
+        studentNames.add("Aarav");
+        studentGrades.add(85);
+
+        studentNames.add("Bhavya");
+        studentGrades.add(92);
+
+        studentNames.add("Charan");
+        studentGrades.add(78);
+
+        int choice;
+
+        System.out.println("Welcome to the Student Grade Tracker!");
+
+        do {
+            System.out.println("\n----------------------------");
+            System.out.println("1. Add a new student grade");
+            System.out.println("2. Modify a student's grade");
+            System.out.println("3. Display all students");
+            System.out.println("4. Display summary report");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+
+            choice = scanner.nextInt();
+            scanner.nextLine(); // clear buffer
+
+            switch (choice) {
+
+                case 1:
+                    System.out.print("Enter student name: ");
+                    String name = scanner.nextLine();
+
+                    System.out.print("Enter grade: ");
+                    int grade = scanner.nextInt();
+
+                    studentNames.add(name);
+                    studentGrades.add(grade);
+
+                    System.out.println("Student grade added successfully!");
+                    break;
+
+                case 2:
+                    System.out.print("Enter student name to modify: ");
+                    String searchName = scanner.nextLine();
+
+                    int found = studentNames.indexOf(searchName);
+
+                    if (found == -1) {
+                        System.out.println("Student not found!");
+                    } else {
+                        System.out.print("Enter new grade: ");
+                        int newGrade = scanner.nextInt();
+                        studentGrades.set(found, newGrade);
+                        System.out.println("Grade updated successfully!");
+                    }
+                    break;
+
+                case 3:
+                    displayStudents();
+                    break;
+
+                case 4:
+                    displaySummary();
+                    break;
+
+                case 5:
+                    System.out.println("Exiting Student Grade Tracker. Goodbye!");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+
+        } while (choice != 5);
+
+        scanner.close();
+    }
+
+    // Display students without index
+    private static void displayStudents() {
+        System.out.println("\nStudent Grades:");
+        for (int i = 0; i < studentNames.size(); i++) {
+            System.out.println(studentNames.get(i) + " : " + studentGrades.get(i));
+        }
+    }
+
+    // Summary report
+    private static void displaySummary() {
+        if (studentGrades.isEmpty()) {
+            System.out.println("No student data available.");
+            return;
+        }
+
+        int sum = 0;
+        int highest = studentGrades.get(0);
+        int lowest = studentGrades.get(0);
+
+        for (int grade : studentGrades) {
+            sum += grade;
+            if (grade > highest) highest = grade;
+            if (grade < lowest) lowest = grade;
+        }
+
+        double average = (double) sum / studentGrades.size();
+
+        System.out.println("\n----- Summary Report -----");
+        System.out.println("Total Students: " + studentGrades.size());
+        System.out.println("Average Score: " + average);
+        System.out.println("Highest Score: " + highest);
+        System.out.println("Lowest Score: " + lowest);
+    }
+}
