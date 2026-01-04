@@ -1,12 +1,14 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class StudentGradeTracker {
+class StudentGradeTracker 
+{
 
     static ArrayList<String> studentNames = new ArrayList<>();
     static ArrayList<Integer> studentGrades = new ArrayList<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+    {
         Scanner scanner = new Scanner(System.in);
 
         // Sample data
@@ -23,7 +25,8 @@ public class StudentGradeTracker {
 
         System.out.println("Welcome to the Student Grade Tracker!");
 
-        do {
+        do 
+        {
             System.out.println("\n----------------------------");
             System.out.println("1. Add a new student grade");
             System.out.println("2. Modify a student's grade");
@@ -35,7 +38,8 @@ public class StudentGradeTracker {
             choice = scanner.nextInt();
             scanner.nextLine(); // clear buffer
 
-            switch (choice) {
+            switch (choice) 
+            {
 
                 case 1:
                     System.out.print("Enter student name: ");
@@ -88,16 +92,20 @@ public class StudentGradeTracker {
     }
 
     // Display students without index
-    private static void displayStudents() {
+    private static void displayStudents() 
+    {
         System.out.println("\nStudent Grades:");
-        for (int i = 0; i < studentNames.size(); i++) {
+        for (int i = 0; i < studentNames.size(); i++) 
+        {
             System.out.println(studentNames.get(i) + " : " + studentGrades.get(i));
         }
     }
 
     // Summary report
-    private static void displaySummary() {
-        if (studentGrades.isEmpty()) {
+    private static void displaySummary() 
+    {
+        if (studentGrades.isEmpty()) 
+        {
             System.out.println("No student data available.");
             return;
         }
@@ -106,7 +114,8 @@ public class StudentGradeTracker {
         int highest = studentGrades.get(0);
         int lowest = studentGrades.get(0);
 
-        for (int grade : studentGrades) {
+        for (int grade : studentGrades) 
+        {
             sum += grade;
             if (grade > highest) highest = grade;
             if (grade < lowest) lowest = grade;
