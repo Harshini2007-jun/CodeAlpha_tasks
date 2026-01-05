@@ -1,0 +1,140 @@
+import java.util.*;
+
+public class StockTradingPlatform {
+    private final Map<String, String> market = new HashMap<>();
+    private final Map<String, Integer> marketPrices = new HashMap<>();
+    private final Map<String, Integer> portfolio = new HashMap<>();
+    private final List<String> transactions = new ArrayList<>();
+    private final Scanner sc = new Scanner(System.in);
+
+    public CodeAlphaStockTradingPlatform() {
+        // Initialize market stocks and prices
+        market.put("BB", "Bajaj Bikes");
+        market.put("TM", "Tata Motors");
+        market.put("M", "Mahindra");
+
+        marketPrices.put("BB", 30000);
+        marketPrices.put("TM", 50000);
+        marketPrices.put("M", 80000);
+    }
+
+    // Display available stocks and prices
+    void displayMarketData() {
+        System.out.println("Available Stocks in Market:");
+        for (String symbol : market.keySet()) {
+            System.out.println(symbol + " - " + market.get(symbol) + " -> ₹" + marketPrices.get(symbol));
+        }
+    }
+
+    // Buy stocks
+    void buyStock() {
+        displayMarketData();
+        System.out.print("Enter Stock Symbol to Buy: ");
+        String symbol = sc.nextLine().toUpperCase();
+
+        if (market.containsKey(symbol)) {
+            System.out.print("Enter quantity to buy: ");
+            int qty = sc.nextInt();
+            sc.nextLine(); // consume newline
+
+            portfolio.put(symbol, portfolio.getOrDefault(symbol, 0) + qty);
+            int totalCost = qty * marketPrices.get(symbol);
+            transactions.add("Bought " + qty + " of " + market.get(symbol) + " for ₹" + totalCost);
+
+            System.out.println("Successfully bought " + qty + " shares of " + market.get(symbol));
+        } else {
+            System.out.println("Invalid stock symbol!");
+        }
+    }
+
+    // Sell stocks
+    void sellStock() {
+        if (portfolio.isEmpty()) {
+            System.out.println("Portfolio is empty. No stocks to sell.");
+            return;
+        }
+
+        displayPortfolio();
+        System.out.print("Enter Stock Symbol to Sell: ");
+        String symbol = sc.nextLine().toUpperCase();
+
+        if (portfolio.containsKey(symbol)) {
+            System.out.print("Enter quantity to sell: ");
+            int qty = sc.nextInt();
+            sc.nextLine(); // consume newline
+
+            int ownedQty = portfolio.get(symbol);
+            if (qty <= ownedQty) {
+                portfolio.put(symbol, ownedQty - qty);
+                if (portfolio.get(symbol) == 0) {
+                    portfolio.remove(symbol);
+                }
+
+                int totalRevenue = qty * marketPrices.get(symbol);
+                transactions.add("Sold " + qty + " of " + market.get(symbol) + " for ₹" + totalRevenue);
+                System.out.println("Successfully sold " + qty + " shares of " + market.get(symbol));
+            } else {
+                System.out.println("Not enough shares to sell. You own only " + ownedQty);
+            }
+        } else {
+            System.out.println("You don't own this stock.");
+        }
+    }
+
+    // Display portfolio
+    void displayPortfolio() {
+        if (portfolio.isEmpty()) {
+            System.out.println("Your portfolio is empty.");
+        } else {
+            System.out.println("Your Portfolio:");
+            for (String symbol : portfolio.keySet()) {
+                System.out.println(symbol + " - " + market.get(symbol) + " | Quantity: " + portfolio.get(symbol));
+            }
+        }
+    }
+
+    // Display transaction history
+    void viewTransactions() {
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions yet.");
+        } else {
+            System.out.println("Transaction History:");
+            for (String tx : transactions) {
+                System.out.println(tx);
+            }
+        }
+    }
+
+    // Main menu
+    public static void main(String[] args) {
+        CodeAlphaStockTradingPlatform platform = new CodeAlphaStockTradingPlatform();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\n==== Stock Trading Platform ====");
+            System.out.println("1. Display Market Data");
+            System.out.println("2. Buy Stock");
+            System.out.println("3. Sell Stock");
+            System.out.println("4. View Portfolio");
+            System.out.println("5. View Transactions");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1 -> platform.displayMarketData();
+                case 2 -> platform.buyStock();
+                case 3 -> platform.sellStock();
+                case 4 -> platform.displayPortfolio();
+                case 5 -> platform.viewTransactions();
+                case 6 -> {
+                    System.out.println("Exiting... Thank you!");
+                    return;
+                }
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+}
