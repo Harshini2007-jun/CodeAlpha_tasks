@@ -1,280 +1,59 @@
 import java.util.*;
 
-// Stock class
-class Stock {
-    String symbol;
-    String companyName;
-    int price;
+class Stock { String symbol,name; int price; Stock(String s,String n,int p){ symbol=s; name=n; price=p; } }
 
-    Stock(String symbol, String companyName, int price) {
-        this.symbol = symbol;
-        this.companyName = companyName;
-        this.price = price;
-    }
-}
+public class StockTradingPlatform {
 
-// Main platform class
-public class CodeAlphaStockTradingPlatform {
+    private Map<String,Stock> market=new HashMap<>();
+    private Map<String,Integer> portfolio=new HashMap<>();
+    private List<String> transactions=new ArrayList<>();
+    private Scanner sc=new Scanner(System.in);
 
-    private final Map<String, Stock> market = new HashMap<>();
-    private final Map<String, Integer> portfolio = new HashMap<>();
-    private final List<String> transactionLog = new ArrayList<>();
-    private final Scanner scanner = new Scanner(System.in);
-
-    public CodeAlphaStockTradingPlatform() {
-        loadMarket();
+    public StockTradingPlatform(){
+        market.put("STK1",new Stock("STK1","Alpha Industries",30000));
+        market.put("STK2",new Stock("STK2","Beta Motors",50000));
+        market.put("STK3",new Stock("STK3","Gamma Enterprises",80000));
     }
 
-    // Load market data
-    private void loadMarket() {
-        market.put("STK1", new Stock("STK1", "Alpha Industries", 30000));
-        market.put("STK2", new Stock("STK2", "Beta Motors", 50000));
-        market.put("STK3", new Stock("STK3", "Gamma Enterprises", 80000));
+    void showMarket(){ System.out.println("Market Data:"); for(Stock s:market.values()) System.out.println(s.symbol+" - "+s.name+" -> ₹"+s.price); }
+
+    void buy(){
+        showMarket(); System.out.print("Enter Symbol: "); String sym=sc.nextLine().toUpperCase();
+        if(!market.containsKey(sym)){ System.out.println("Invalid Symbol"); return; }
+        System.out.print("Quantity: "); int q=sc.nextInt(); sc.nextLine();
+        portfolio.put(sym,portfolio.getOrDefault(sym,0)+q);
+        transactions.add("BUY "+q+" of "+market.get(sym).name+" for ₹"+(q*market.get(sym).price));
+        System.out.println("Stock Bought");
     }
 
-    // Display menu
-    private void showMenu() {
-        System.out.println("\n==== STOCK TRADING PLATFORM ====");
-        System.out.println("1. View Market Stocks");
-        System.out.println("2. Buy Stock");
-        System.out.println("3. Sell Stock");
-        System.out.println("4. View Portfolio");
-        System.out.println("5. Transaction History");
-        System.out.println("6. Exit");
-        System.out.print("Choose an option: ");
+    void sell(){
+        if(portfolio.isEmpty()){ System.out.println("Portfolio Empty"); return; }
+        viewPortfolio(); System.out.print("Enter Symbol: "); String sym=sc.nextLine().toUpperCase();
+        if(!portfolio.containsKey(sym)){ System.out.println("Not Owned"); return; }
+        System.out.print("Quantity: "); int q=sc.nextInt(); sc.nextLine();
+        int owned=portfolio.get(sym);
+        if(q>owned){ System.out.println("Insufficient Quantity"); return; }
+        portfolio.put(sym,owned-q); if(portfolio.get(sym)==0) portfolio.remove(sym);
+        transactions.add("SELL "+q+" of "+market.get(sym).name+" for ₹"+(q*market.get(sym).price));
+        System.out.println("Stock Sold");
     }
 
-    // Display market
-    private void displayMarket() {
-        System.out.println("\nMarket Data:");
-        for (Stock stock : market.values()) {
-            System.out.println(stock.symbol + " | " + stock.companyName +
-                    " | Price: ₹" + stock.price);
+    void viewPortfolio(){
+        if(portfolio.isEmpty()){ System.out.println("Portfolio Empty"); return; }
+        int total=0; System.out.println("Your Portfolio:");
+        for(String s:portfolio.keySet()){ int v=portfolio.get(s)*market.get(s).price; total+=v; System.out.println(s+" | "+market.get(s).name+" | Qty:"+portfolio.get(s)+" | Value:₹"+v); }
+        System.out.println("Total Portfolio Value: ₹"+total);
+    }
+
+    void viewTransactions(){ if(transactions.isEmpty()) System.out.println("No Transactions"); else for(String t:transactions) System.out.println(t); }
+
+    public void start(){
+        while(true){
+            System.out.println("\n1.Market 2.Buy 3.Sell 4.Portfolio 5.Transactions 6.Exit"); System.out.print("Choice: ");
+            int c=sc.nextInt(); sc.nextLine();
+            if(c==1) showMarket(); else if(c==2) buy(); else if(c==3) sell(); else if(c==4) viewPortfolio(); else if(c==5) viewTransactions(); else if(c==6){ System.out.println("Thank You"); break; } else System.out.println("Invalid Choice");
         }
     }
 
-    // Buy stock
-    private void buyStock() {
-        displayMarket();
-        System.out.print("Enter stock symbol: ");
-        String symbol = scanner.nextLine().toUpperCase();
-
-        if (!market.containsKey(symbol)) {
-            System.out.println("Invalid stock symbol.");
-            return;
-        }
-
-        System.out.print("Enter quantity: ");
-        int qty = scanner.nextInt();
-        scanner.nextLine();
-
-        portfolio.put(symbol, portfolio.getOrDefault(symbol, 0) + qty);
-
-        Stock stock = market.get(symbol);
-        transactionLog.add("BOUGHT " + qty + " shares of " +
-                stock.companyName + " (₹" + (qty * stock.price) + ")");
-
-        System.out.println("Stock purchased successfully.");
-    }
-
-    // Sell stock
-    private void sellStock() {
-        if (portfolio.isEmpty()) {
-            System.out.println("Portfolio is empty.");
-            return;
-        }
-
-        displayPortfolio();
-        System.out.print("Enter stock symbol to sell: ");
-        String symbol = scanner.nextLine().toUpperCase();
-
-        if (!portfolio.containsKey(symbol)) {
-            System.out.println("Stock not available in portfolio.");
-            return;
-        }
-
-        System.out.print("Enter quantity: ");
-        int qty = scanner.nextInt();
-        scanner.nextLine();
-
-        int owned = portfolio.get(symbol);
-        if (qty > owned) {
-            System.out.println("Not enough shares.");
-            return;
-        }
-
-        portfolio.put(symbol, owned - qty);
-        if (portfolio.get(symbol) == 0)
-            portfolio.remove(symbol);
-
-        Stock stock = market.get(symbol);
-        transactionLog.add("SOLD " + qty + " shares of " +
-                stock.companyName + " (₹" + (qty * stock.price) + ")");
-
-        System.out.println("Stock sold successfully.");
-    }
-
-    // Display portfolio with total value
-    private void displayPortfolio() {
-        if (portfolio.isEmpty()) {
-            System.out.println("Portfolio is empty.");
-            return;
-        }
-
-        int totalValue = 0;
-        System.out.println("\nYour Portfolio:");
-        for (String symbol : portfolio.keySet()) {
-            Stock stock = market.get(symbol);
-            int qty = portfolio.get(symbol);
-            int value = qty * stock.price;
-            totalValue += value;
-
-            System.out.println(symbol + " | " + stock.companyName +
-                    " | Qty: " + qty + " | Value: ₹" + value);
-        }
-
-        System.out.println("Total Portfolio Value: ₹" + totalValue);
-    }
-
-    // Transaction history
-    private void showTransactions() {
-        if (transactionLog.isEmpty()) {
-            System.out.println("No transactions performed yet.");
-            return;
-        }
-
-        System.out.println("\nTransaction History:");
-        for (String record : transactionLog) {
-            System.out.println(record);
-        }
-    }
-
-    // Start application
-    public void start() {
-        while (true) {
-            showMenu();
-            int choice = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choice) {
-                case 1 -> displayMarket();
-                case 2 -> buyStock();
-                case 3 -> sellStock();
-                case 4 -> displayPortfolio();
-                case 5 -> showTransactions();
-                case 6 -> {
-                    System.out.println("Thank you for using the platform.");
-                    return;
-                }
-                default -> System.out.println("Invalid choice.");
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        new CodeAlphaStockTradingPlatform().start();
-    }
-}            int qty = sc.nextInt();
-            sc.nextLine(); // consume newline
-
-            portfolio.put(symbol, portfolio.getOrDefault(symbol, 0) + qty);
-            int totalCost = qty * marketPrices.get(symbol);
-            transactions.add("Bought " + qty + " of " + market.get(symbol) + " for ₹" + totalCost);
-
-            System.out.println("Successfully bought " + qty + " shares of " + market.get(symbol));
-        } else {
-            System.out.println("Invalid stock symbol!");
-        }
-    }
-
-    // Sell stocks
-    void sellStock() {
-        if (portfolio.isEmpty()) {
-            System.out.println("Portfolio is empty. No stocks to sell.");
-            return;
-        }
-
-        displayPortfolio();
-        System.out.print("Enter Stock Symbol to Sell: ");
-        String symbol = sc.nextLine().toUpperCase();
-
-        if (portfolio.containsKey(symbol)) {
-            System.out.print("Enter quantity to sell: ");
-            int qty = sc.nextInt();
-            sc.nextLine(); // consume newline
-
-            int ownedQty = portfolio.get(symbol);
-            if (qty <= ownedQty) {
-                portfolio.put(symbol, ownedQty - qty);
-                if (portfolio.get(symbol) == 0) {
-                    portfolio.remove(symbol);
-                }
-
-                int totalRevenue = qty * marketPrices.get(symbol);
-                transactions.add("Sold " + qty + " of " + market.get(symbol) + " for ₹" + totalRevenue);
-                System.out.println("Successfully sold " + qty + " shares of " + market.get(symbol));
-            } else {
-                System.out.println("Not enough shares to sell. You own only " + ownedQty);
-            }
-        } else {
-            System.out.println("You don't own this stock.");
-        }
-    }
-
-    // Display portfolio
-    void displayPortfolio() {
-        if (portfolio.isEmpty()) {
-            System.out.println("Your portfolio is empty.");
-        } else {
-            System.out.println("Your Portfolio:");
-            for (String symbol : portfolio.keySet()) {
-                System.out.println(symbol + " - " + market.get(symbol) + " | Quantity: " + portfolio.get(symbol));
-            }
-        }
-    }
-
-    // Display transaction history
-    void viewTransactions() {
-        if (transactions.isEmpty()) {
-            System.out.println("No transactions yet.");
-        } else {
-            System.out.println("Transaction History:");
-            for (String tx : transactions) {
-                System.out.println(tx);
-            }
-        }
-    }
-
-    // Main menu
-    public static void main(String[] args) {
-        CodeAlphaStockTradingPlatform platform = new CodeAlphaStockTradingPlatform();
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.println("\n==== Stock Trading Platform ====");
-            System.out.println("1. Display Market Data");
-            System.out.println("2. Buy Stock");
-            System.out.println("3. Sell Stock");
-            System.out.println("4. View Portfolio");
-            System.out.println("5. View Transactions");
-            System.out.println("6. Exit");
-            System.out.print("Enter your choice: ");
-
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
-
-            switch (choice) {
-                case 1 -> platform.displayMarketData();
-                case 2 -> platform.buyStock();
-                case 3 -> platform.sellStock();
-                case 4 -> platform.displayPortfolio();
-                case 5 -> platform.viewTransactions();
-                case 6 -> {
-                    System.out.println("Exiting... Thank you!");
-                    return;
-                }
-                default -> System.out.println("Invalid choice. Try again.");
-            }
-        }
-    }
+    public static void main(String[] args){ new StockTradingPlatform().start(); }
 }
